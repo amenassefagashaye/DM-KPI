@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <title>DM PHCU · Performance Dashboard 2026</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', 'Power Unicode 1', serif;
+      background: #eef2f6;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 72px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    .amharic { font-family: 'Noto Sans Ethiopic', 'Power Unicode 1', 'Times New Roman', serif; }
+
+    :root {
+      --primary: #0b3b5c;
+      --primary-light: #1f5a7a;
+      --primary-dark: #082a42;
+      --secondary: #2c7a7b;
+      --secondary-light: #3a9a9b;
+      --green: #2e7d32;
+      --yellow: #f9a825;
+      --orange-red: #e65100;
+      --red: #b71c1c;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --border: #d1d9e6;
+      --text-muted: #64748b;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+      --radius: 16px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --footer-height: 72px;
+      --touch-target: 44px;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #0b3b5c 0%, #1a4d6e 50%, #2c7a7b 100%);
+      color: white;
+      padding: 12px 14px;
+      box-shadow: 0 4px 20px rgba(11, 59, 92, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+    }
+    .app-header .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .app-header .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+      justify-content: center;
+    }
+    .app-header .brand-icon {
+      font-size: 1.4rem;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 8px 10px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app-header .header-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+      text-align: center;
+    }
+    .app-header .header-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .app-header .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .app-header .fullscreen-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: none;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--touch-target);
+      min-height: var(--touch-target);
+    }
+    .app-header .fullscreen-btn:hover { background: rgba(255, 255, 255, 0.35); }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px 10px;
+      flex: 1;
+      width: 100%;
+    }
+    @media (min-width: 640px) { .container { max-width: 720px; padding: 16px 20px; } }
+    @media (min-width: 900px) { .container { max-width: 1000px; padding: 20px 28px; } }
+    @media (min-width: 1200px) { .container { max-width: 1200px; padding: 24px 36px; } }
+    @media (min-width: 1500px) { .container { max-width: 1400px; } }
+
+    .page-section { display: none; animation: fadeIn 0.3s ease; }
+    .page-section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      padding: 20px 0;
+    }
+    .login-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 420px;
+      border-top: 6px solid var(--primary);
+    }
+    .login-card h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 6px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .login-card .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    .login-card .input-group { margin-bottom: 18px; }
+    .login-card .input-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 6px;
+      color: #334155;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .login-card .input-group select,
+    .login-card .input-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-size: 1rem;
+      background: var(--bg-subtle);
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      color: #1e293b;
+      min-height: var(--touch-target);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .login-card .input-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b3b5c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    .login-card .input-group input:focus,
+    .login-card .input-group select:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 4px rgba(11, 59, 92, 0.08);
+      background: white;
+    }
+    .login-card .input-group input.error,
+    .login-card .input-group select.error {
+      border-color: var(--red);
+      background: #fff5f5;
+    }
+    .login-card .error-msg {
+      font-size: 0.75rem;
+      color: var(--red);
+      margin-top: 5px;
+      font-weight: 600;
+      display: none;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .login-card .error-msg.show { display: block; }
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      box-shadow: 0 4px 16px rgba(11, 59, 92, 0.25);
+      min-height: 52px;
+      margin-top: 6px;
+      letter-spacing: 0.5px;
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11, 59, 92, 0.35); }
+    .login-btn:active { transform: scale(0.97); }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    @media (min-width: 600px) { .home-grid { grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; } }
+    @media (min-width: 1000px) { .home-grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+    .facility-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 24px 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-height: 200px;
+      justify-content: center;
+    }
+    .facility-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: var(--transition);
+    }
+    .facility-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+    .facility-card:active { transform: scale(0.97); }
+    .facility-card .icon-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #e8f0f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--primary);
+      transition: var(--transition);
+    }
+    .facility-card:hover .icon-circle { background: var(--primary); color: white; transform: scale(1.08); }
+    .facility-card h3 { font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif; }
+    .facility-card .desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; max-width: 280px; font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif; }
+    .facility-card .badge-count {
+      background: #e8f0f8;
+      color: var(--primary);
+      padding: 5px 16px;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .facility-card:hover .badge-count { background: var(--primary); color: white; }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      background: white;
+      padding: 8px 14px;
+      border-radius: var(--radius-xs);
+      box-shadow: var(--shadow);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .breadcrumb .crumb {
+      color: var(--primary);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: var(--transition);
+      font-weight: 600;
+      white-space: nowrap;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .breadcrumb .crumb:hover { background: #e8f0f8; }
+    .breadcrumb .crumb.active { color: var(--secondary); font-weight: 700; cursor: default; }
+    .breadcrumb .crumb.active:hover { background: transparent; }
+    .breadcrumb .sep { color: #cbd5e1; font-weight: 300; }
+
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      background: white;
+      padding: 6px;
+      border-radius: 40px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 14px;
+      border: none;
+      background: transparent;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #475569;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      min-width: 100px;
+      min-height: var(--touch-target);
+    }
+    .tab-btn:hover { background: #f1f5f9; color: var(--primary); }
+    .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(11, 59, 92, 0.25); }
+    .tab-btn.active.hp-active { background: var(--secondary); box-shadow: 0 4px 12px rgba(44, 122, 123, 0.25); }
+    .tab-btn i { font-size: 0.9rem; }
+
+    .card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+      margin-bottom: 16px;
+      transition: var(--transition);
+      overflow: hidden;
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .card-header {
+      font-weight: 800;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      flex-wrap: wrap;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (min-width: 600px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 900px) { .kpi-grid { grid-template-columns: repeat(5, 1fr); } }
+    .kpi-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 16px 14px;
+      border-left: 5px solid var(--primary);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .kpi-card .label {
+      font-size: 0.72rem;
+      color: #475569;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+      line-height: 1.3;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .kpi-card .value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .kpi-card .sub {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-top: 2px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-sm);
+      margin: 8px 0;
+      border: 1px solid #eef2f6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      min-width: 560px;
+    }
+    th {
+      background: #f1f5f9;
+      text-align: left;
+      padding: 12px 10px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #475569;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      white-space: nowrap;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #eef2f6;
+      vertical-align: middle;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    tr:hover td { background: #f8fafc; }
+    tr:last-child td { border-bottom: none; }
+    .indicator-table th, .indicator-table td { font-size: 0.76rem; padding: 9px 8px; }
+
+    .status-badge {
+      padding: 5px 14px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      display: inline-block;
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      white-space: nowrap;
+      line-height: 1.4;
+    }
+    .status-green { background: #c8e6c9; color: #1e4a1e; }
+    .status-yellow { background: #fff9c4; color: #7d5d00; }
+    .status-orange { background: #ffccbc; color: #a53f00; }
+    .status-red { background: #ffcdd2; color: #9a1f1f; }
+    .status-draft { background: #e2e8f0; color: #475569; }
+    .status-submitted { background: #bbdefb; color: #0d47a1; }
+    .status-review { background: #ffe0b2; color: #e65100; }
+    .status-returned { background: #ffcdd2; color: #9a1f1f; }
+    .status-approved { background: #a5d6a7; color: #1b5e20; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      box-shadow: 0 4px 12px rgba(11, 59, 92, 0.2);
+      min-height: var(--touch-target);
+      white-space: nowrap;
+      text-align: center;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11, 59, 92, 0.3); }
+    .btn:active { transform: scale(0.96); }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); box-shadow: none; }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-sm { padding: 8px 16px; font-size: 0.78rem; min-height: 36px; }
+    .btn-green { background: var(--green); box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25); }
+    .btn-green:hover { box-shadow: 0 8px 20px rgba(46, 125, 50, 0.35); }
+    .btn-red { background: var(--red); }
+    .btn-secondary { background: var(--secondary); box-shadow: 0 4px 12px rgba(44, 122, 123, 0.25); }
+    .btn-secondary:hover { box-shadow: 0 8px 20px rgba(44, 122, 123, 0.35); }
+    .btn-admin { background: #6d28d9; box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25); }
+    .btn-admin:hover { box-shadow: 0 8px 20px rgba(109, 40, 217, 0.35); }
+    .btn-copy { background: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+    .btn-copy:hover { box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35); }
+    .btn-share { background: #7c3aed; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25); }
+    .btn-share:hover { box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35); }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #eef2f6;
+      justify-content: space-evenly;
+    }
+    .action-bar .btn { flex: 1 1 0; min-width: 100px; }
+
+    .input-group { margin-bottom: 14px; }
+    .input-group label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      color: #334155;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-size: 0.9rem;
+      background: var(--bg-subtle);
+      transition: var(--transition);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      color: #1e293b;
+      min-height: var(--touch-target);
+    }
+    .input-group input:focus,
+    .input-group select:focus,
+    .input-group textarea:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 4px rgba(11, 59, 92, 0.08);
+      background: white;
+    }
+    .input-group input.error { border-color: var(--red); background: #fff5f5; }
+
+    .chart-box {
+      height: 200px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: flex-end;
+      padding: 24px 14px 30px;
+      gap: 8px;
+      margin: 12px 0;
+      overflow: hidden;
+      border: 1px solid #eef2f6;
+      position: relative;
+    }
+    .chart-bar {
+      flex: 1;
+      background: var(--primary);
+      border-radius: 6px 6px 0 0;
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 6px;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .chart-bar:hover { opacity: 0.85; }
+    .chart-bar .bar-label {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #1e293b;
+      background: white;
+      padding: 1px 5px;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      pointer-events: none;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .chart-label-row {
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 0 4px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      font-weight: 600;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: -24px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .pie-chart-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 16px 0;
+    }
+    .pie-chart {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    .pie-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .pie-legend .legend-item { display: flex; align-items: center; gap: 8px; }
+    .pie-legend .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+
+    .swot-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 600px) { .swot-grid { grid-template-columns: 1fr 1fr; } }
+    .swot-card {
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      transition: var(--transition);
+    }
+    .swot-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .swot-card h4 {
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .swot-card ul { list-style: none; padding: 0; }
+    .swot-card ul li {
+      font-size: 0.8rem;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      line-height: 1.4;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .swot-card ul li:last-child { border-bottom: none; }
+
+    .selector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .selector-btn {
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-xs);
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 700;
+      font-size: 0.82rem;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      color: #334155;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .selector-btn:hover { border-color: var(--primary-light); background: #f0f7ff; transform: translateY(-2px); }
+    .selector-btn.selected { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(11, 59, 92, 0.25); }
+    .selector-btn.selected .sub-label { color: rgba(255, 255, 255, 0.8); }
+    .selector-btn .sub-label { font-size: 0.68rem; font-weight: 500; color: var(--text-muted); }
+    .selector-btn.selected .score-pill { background: rgba(255, 255, 255, 0.2); color: white; }
+    .selector-btn .score-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: #e8f0f8;
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-top: 2px;
+    }
+
+    .hp-card {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 16px 14px;
+      border-left: 6px solid var(--secondary);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 120px;
+    }
+    .hp-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .hp-card.selected { border-left-color: var(--primary); background: #f0f7ff; }
+    .hp-card .hp-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--primary);
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .hp-card .hp-meta {
+      font-size: 0.75rem;
+      color: #475569;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .hp-card .hp-scores { display: flex; gap: 8px; font-size: 0.75rem; flex-wrap: wrap; }
+    .hp-card .hp-scores span {
+      background: #f1f5f9;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .hp-card.selected .hp-scores span { background: rgba(11, 59, 92, 0.1); }
+
+    .framework-section {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px 16px;
+      margin-bottom: 14px;
+    }
+    .framework-section .section-title {
+      font-family: 'Noto Sans Ethiopic', 'Power Unicode 1', 'Times New Roman', serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #eef2f6;
+    }
+    .framework-item {
+      font-family: 'Noto Sans Ethiopic', 'Power Unicode 1', 'Times New Roman', serif;
+      font-size: 0.82rem;
+      padding: 8px 0 8px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      line-height: 1.4;
+      color: #334155;
+    }
+    .framework-item:last-child { border-bottom: none; }
+    .framework-item .code { color: var(--text-muted); font-weight: 700; margin-right: 6px; }
+
+    .app-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #0b3b5c, #1a4d6e);
+      color: white;
+      padding: 10px 16px;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+      min-height: var(--footer-height);
+    }
+    .app-footer .footer-inner {
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .app-footer .footer-section {
+      flex: 1;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 4px 8px;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+    }
+    .app-footer .footer-section:first-child { text-align: left; }
+    .app-footer .footer-section:last-child { text-align: right; }
+    .app-footer .footer-divider { color: rgba(255, 255, 255, 0.3); font-weight: 300; font-size: 0.9rem; }
+    .app-footer .footer-section .accent { color: #ffe082; }
+
+    .toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 9999;
+      pointer-events: none;
+      font-family: 'Times New Roman', 'Noto Sans Ethiopic', serif;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--red); }
+    .toast.info { background: var(--primary); }
+    .toast.warning { background: var(--orange-red); }
+
+    .mt-1 { margin-top: 6px; } .mt-2 { margin-top: 12px; } .mt-3 { margin-top: 18px; }
+    .mb-1 { margin-bottom: 6px; } .mb-2 { margin-bottom: 12px; } .mb-3 { margin-bottom: 18px; }
+    .flex { display: flex; gap: 10px; flex-wrap: wrap; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .flex-center { display: flex; justify-content: center; align-items: center; }
+    .gap-1 { gap: 6px; } .gap-2 { gap: 12px; }
+    .w-full { width: 100%; }
+    .text-muted { color: var(--text-muted); font-size: 0.8rem; }
+    .text-bold { font-weight: 700; }
+    .text-center { text-align: center; }
+    .hidden { display: none !important; }
+    .no-data { text-align: center; padding: 32px 16px; color: var(--text-muted); font-size: 0.85rem; }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    @media (max-width: 640px) {
+      .app-header .header-title { font-size: 0.82rem; }
+      .kpi-card .value { font-size: 1.3rem; }
+      .chart-box { height: 170px; }
+      .pie-chart { width: 130px; height: 130px; }
+      .app-footer .footer-section { font-size: 0.68rem; }
+    }
+    @media (max-width: 420px) {
+      .app-header .header-title { font-size: 0.75rem; }
+      .app-header .brand-icon { font-size: 1.1rem; padding: 6px 8px; }
+      .tab-btn { font-size: 0.75rem; padding: 10px 8px; min-width: 70px; }
+      .facility-card h3 { font-size: 1.05rem; }
+      .facility-card .desc { font-size: 0.72rem; }
+      .kpi-card .value { font-size: 1.15rem; }
+      .app-footer .footer-section { font-size: 0.6rem; }
+      .selector-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+      .selector-btn { padding: 10px 6px; font-size: 0.75rem; min-height: 52px; }
+      .chart-bar .bar-label { font-size: 0.55rem; padding: 1px 3px; top: -18px; }
+    }
+    @media (max-width: 360px) {
+      .app-header .header-title { font-size: 0.68rem; }
+      .app-header .brand-icon { font-size: 0.95rem; padding: 5px 7px; }
+      .tab-btn { font-size: 0.68rem; padding: 8px 6px; min-width: 60px; }
+      .tab-btn i { font-size: 0.75rem; }
+      .kpi-card .value { font-size: 1rem; }
+      .app-footer .footer-section { font-size: 0.55rem; }
+      .app-footer .footer-divider { display: none; }
+      .app-footer .footer-inner { flex-direction: column; gap: 2px; }
+      .app-footer .footer-section:first-child,
+      .app-footer .footer-section:last-child { text-align: center; }
+      .chart-bar .bar-label { font-size: 0.5rem; padding: 0 2px; top: -16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<header class="app-header" id="appHeader">
+  <div class="header-inner">
+    <div class="header-brand">
+      <i class="fas fa-heart-pulse brand-icon"></i>
+      <div class="header-text">
+        <div class="header-title">Debremarkose PHCU KPI</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle fullscreen" aria-label="Toggle fullscreen">
+        <i class="fas fa-expand"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="appMain" class="container">
+
+  <div id="page-login" class="page-section active">
+    <div class="login-wrapper">
+      <div class="login-card">
+        <h2>DM PHCU Performance Dashboard 2026</h2>
+        <div class="subtitle">Please log in to continue</div>
+
+        <div class="input-group">
+          <label for="usernameSelect">Username / የተጠቃሚ ስም</label>
+          <select id="usernameSelect">
+            <option value="">— Select —</option>
+            <option value="Health Center">Health Center</option>
+            <option value="Health Post / የጤና ኬላ">Health Post / የጤና ኬላ</option>
+            <option value="Admin">Admin</option>
+          </select>
+          <div class="error-msg" id="usernameError">Please select a user type</div>
+        </div>
+
+        <div class="input-group">
+          <label for="passwordInput">Password / የይለፍ ቃል</label>
+          <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="off">
+          <div class="error-msg" id="passwordError">Password is required</div>
+        </div>
+
+        <button class="login-btn" id="loginBtn">LOGIN</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-home" class="page-section">
+    <div class="home-grid">
+      <div class="facility-card" id="hcCard" tabindex="0" role="button" aria-label="Open Health Center dashboard">
+        <div class="icon-circle"><i class="fas fa-hospital"></i></div>
+        <h3>HC</h3>
+        <div class="desc">Health Center — full performance management with 5 agendas</div>
+        <div class="badge-count" id="hcIndicatorCount">42 indicators</div>
+      </div>
+      <div class="facility-card" id="hpCard" tabindex="0" role="button" aria-label="Open Health Posts indicator framework">
+        <div class="icon-circle" style="background:#e6f2f2;color:var(--secondary);"><i class="fas fa-house-medical"></i></div>
+        <h3>HPs</h3>
+        <div class="desc">Health Posts — individual facility performance &amp; data entry</div>
+        <div class="badge-count" id="hpCountBadge">6 health posts</div>
+      </div>
+      <div class="facility-card" id="adminCard" tabindex="0" role="button" aria-label="Open Admin dashboard">
+        <div class="icon-circle" style="background:#f3e8ff;color:#6d28d9;"><i class="fas fa-shield-halved"></i></div>
+        <h3>Admin</h3>
+        <div class="desc">Submitted data, review, status tracking &amp; aggregation</div>
+        <div class="badge-count" id="adminBadge" style="background:#f3e8ff;color:#6d28d9;">0 submissions</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-hc" class="page-section">
+    <div class="breadcrumb" id="hcBreadcrumb">
+      <span class="crumb" onclick="window._goHome()">PHCU</span>
+      <span class="sep">›</span>
+      <span class="crumb active">Health Center</span>
+    </div>
+    <div class="tab-bar" id="hcTabBar">
+      <button class="tab-btn active" data-hctab="overview"><i class="fas fa-chart-pie"></i> Overview</button>
+      <button class="tab-btn" data-hctab="data"><i class="fas fa-database"></i> Data</button>
+      <button class="tab-btn" data-hctab="analysis"><i class="fas fa-chart-line"></i> Analysis</button>
+    </div>
+    <div id="hcContent"></div>
+  </div>
+
+  <div id="page-hp" class="page-section">
+    <div class="breadcrumb" id="hpBreadcrumb">
+      <span class="crumb" onclick="window._goHome()">PHCU</span>
+      <span class="sep">›</span>
+      <span class="crumb" onclick="window._hpGoToList()">HPs</span>
+      <span class="sep">›</span>
+      <span class="crumb active" id="hpBreadcrumbCurrent">All</span>
+    </div>
+    <div class="tab-bar" id="hpTabBar">
+      <button class="tab-btn active amharic" data-hptab="overview"><i class="fas fa-chart-pie"></i> አጠቃላይ እይታ</button>
+      <button class="tab-btn amharic" data-hptab="data"><i class="fas fa-database"></i> መረጃ ማስገቢያ</button>
+      <button class="tab-btn amharic" data-hptab="analysis"><i class="fas fa-chart-line"></i> ትንተና</button>
+    </div>
+    <div id="hpContent"></div>
+  </div>
+
+  <div id="page-admin" class="page-section">
+    <div class="breadcrumb" id="adminBreadcrumb">
+      <span class="crumb" onclick="window._goHome()">PHCU</span>
+      <span class="sep">›</span>
+      <span class="crumb active">Admin Dashboard</span>
+    </div>
+    <div class="tab-bar" id="adminTabBar">
+      <button class="tab-btn active" data-admintab="submissions"><i class="fas fa-inbox"></i> Submissions</button>
+      <button class="tab-btn" data-admintab="aggregate"><i class="fas fa-chart-simple"></i> Aggregate</button>
+      <button class="tab-btn" data-admintab="comparison"><i class="fas fa-code-compare"></i> Comparison</button>
+    </div>
+    <div id="adminContent"></div>
+  </div>
+
+</div>
+
+<footer class="app-footer" id="appFooter">
+  <div class="footer-inner">
+    <div class="footer-section"><span class="accent">DM PHCU</span></div>
+    <span class="footer-divider">|</span>
+    <div class="footer-section">By: Assefa Gashaye, 0918203416</div>
+    <span class="footer-divider">|</span>
+    <div class="footer-section">2026</div>
+  </div>
+</footer>
+
+<script>
+  (function() {
+    'use strict';
+
+    let currentUser = { name: '', role: '' };
+    let currentPage = 'login';
+    let currentHpId = null;
+    let currentKebele = null;
+    let currentHcTab = 'overview';
+    let currentHpTab = 'overview';
+    let currentAdminTab = 'submissions';
+
+    let hcAgendas = [
+      { id: 'finance', name: 'Health Financing', weight: 5, score: 81, icon: 'fa-coins', color: '#2e7d32' },
+      { id: 'ir', name: 'Information Revolution', weight: 15, score: 74, icon: 'fa-chart-simple', color: '#f9a825' },
+      { id: 'lg', name: 'Leadership & Governance', weight: 20, score: 79, icon: 'fa-landmark', color: '#0b3b5c' },
+      { id: 'mcc', name: 'MCC', weight: 10, score: 72, icon: 'fa-people-group', color: '#2c7a7b' },
+      { id: 'qe', name: 'Quality & Equity', weight: 50, score: 78, icon: 'fa-scale-balanced', color: '#b71c1c' }
+    ];
+
+    let hcIndicators = [
+      { id: 1, agenda: 'finance', name: 'Reimbursement', weight: 5, plan: 100, achievement: 85, unit: '%', direction: 'higher', verified: true },
+      { id: 2, agenda: 'ir', name: 'Data Quality Score', weight: 5, plan: 90, achievement: 78, unit: '%', direction: 'higher', verified: false },
+      { id: 3, agenda: 'ir', name: 'Data Use Score', weight: 5, plan: 85, achievement: 72, unit: '%', direction: 'higher', verified: false },
+      { id: 4, agenda: 'ir', name: 'HIS Capacity & Infrastructure', weight: 5, plan: 80, achievement: 70, unit: '%', direction: 'higher', verified: false },
+      { id: 5, agenda: 'lg', name: 'CSC Rate', weight: 5, plan: 85, achievement: 76, unit: '%', direction: 'higher', verified: true },
+      { id: 6, agenda: 'lg', name: 'EHCRIG Implementation', weight: 15, plan: 80, achievement: 68, unit: '%', direction: 'higher', verified: false },
+      { id: 7, agenda: 'mcc', name: 'HC Staff Satisfaction', weight: 5, plan: 90, achievement: 82, unit: '%', direction: 'higher', verified: false },
+      { id: 8, agenda: 'mcc', name: 'Active Professional License', weight: 5, plan: 95, achievement: 88, unit: '%', direction: 'higher', verified: false },
+      { id: 9, agenda: 'qe', name: 'ANC1 to Delivery DOR', weight: 2, plan: 100, achievement: 85, unit: '%', direction: 'higher', verified: true },
+      { id: 10, agenda: 'qe', name: 'ANC8 Coverage', weight: 1, plan: 90, achievement: 78, unit: '%', direction: 'higher', verified: false },
+      { id: 11, agenda: 'qe', name: 'ART Retention', weight: 1, plan: 95, achievement: 92, unit: '%', direction: 'higher', verified: false },
+      { id: 12, agenda: 'qe', name: 'Contraceptive Acceptance Rate', weight: 1, plan: 80, achievement: 70, unit: '%', direction: 'higher', verified: false },
+      { id: 13, agenda: 'qe', name: 'Early PNC Coverage', weight: 2, plan: 85, achievement: 72, unit: '%', direction: 'higher', verified: false },
+      { id: 14, agenda: 'qe', name: 'Essential Drug Availability', weight: 2, plan: 100, achievement: 95, unit: '%', direction: 'higher', verified: true },
+      { id: 15, agenda: 'qe', name: 'Essential Lab Test Availability', weight: 2, plan: 90, achievement: 82, unit: '%', direction: 'higher', verified: false },
+      { id: 16, agenda: 'qe', name: 'Full Immunization <1yr', weight: 2, plan: 95, achievement: 88, unit: '%', direction: 'higher', verified: false },
+      { id: 17, agenda: 'qe', name: 'Good Governance Index', weight: 2, plan: 85, achievement: 76, unit: '%', direction: 'higher', verified: false },
+      { id: 18, agenda: 'qe', name: 'EPHCG Implementation', weight: 5, plan: 80, achievement: 68, unit: '%', direction: 'higher', verified: false },
+      { id: 19, agenda: 'qe', name: 'Patient Satisfaction', weight: 1, plan: 90, achievement: 82, unit: '%', direction: 'higher', verified: false },
+      { id: 20, agenda: 'qe', name: 'Malaria Positivity Rate', weight: 2, plan: 10, achievement: 8, unit: '%', direction: 'lower', verified: false },
+      { id: 21, agenda: 'qe', name: 'OPD Attendance per Capita', weight: 2, plan: 2, achievement: 1.8, unit: 'visits', direction: 'higher', verified: false },
+      { id: 22, agenda: 'qe', name: 'Penta1 to MCV1 Dropout', weight: 2, plan: 5, achievement: 6, unit: '%', direction: 'lower', verified: false },
+      { id: 23, agenda: 'qe', name: 'PMTCT ART Mothers', weight: 1, plan: 100, achievement: 97, unit: '%', direction: 'higher', verified: true },
+      { id: 24, agenda: 'qe', name: '100% Prescribed Drugs Filled', weight: 2, plan: 100, achievement: 88, unit: '%', direction: 'higher', verified: false },
+      { id: 25, agenda: 'qe', name: 'TB Cases Notified & Treated', weight: 1, plan: 50, achievement: 48, unit: 'cases', direction: 'higher', verified: false },
+      { id: 26, agenda: 'qe', name: 'Viral Load Suppression', weight: 1, plan: 90, achievement: 84, unit: '%', direction: 'higher', verified: false },
+      { id: 27, agenda: 'qe', name: 'PMTCT Testing', weight: 1, plan: 95, achievement: 91, unit: '%', direction: 'higher', verified: false },
+      { id: 28, agenda: 'qe', name: 'Diabetes Screening', weight: 1, plan: 60, achievement: 45, unit: '%', direction: 'higher', verified: false },
+      { id: 29, agenda: 'qe', name: 'Community Referred TB', weight: 1, plan: 30, achievement: 22, unit: 'cases', direction: 'higher', verified: false },
+      { id: 30, agenda: 'qe', name: 'Skilled Delivery', weight: 2, plan: 85, achievement: 79, unit: '%', direction: 'higher', verified: false },
+      { id: 31, agenda: 'qe', name: 'Two Doses Vitamin A', weight: 1, plan: 80, achievement: 72, unit: '%', direction: 'higher', verified: false },
+      { id: 32, agenda: 'qe', name: 'Children <2 GMP', weight: 2, plan: 70, achievement: 58, unit: '%', direction: 'higher', verified: false },
+      { id: 33, agenda: 'qe', name: 'Hypertension Screening', weight: 1, plan: 75, achievement: 66, unit: '%', direction: 'higher', verified: false },
+      { id: 34, agenda: 'qe', name: 'Pregnant Women MMS', weight: 1, plan: 80, achievement: 71, unit: '%', direction: 'higher', verified: false },
+      { id: 35, agenda: 'qe', name: 'Syphilis Screening Pregnant', weight: 1, plan: 85, achievement: 77, unit: '%', direction: 'higher', verified: false },
+      { id: 36, agenda: 'qe', name: 'Under5 Pneumonia Treated', weight: 2, plan: 90, achievement: 83, unit: '%', direction: 'higher', verified: false },
+      { id: 37, agenda: 'qe', name: 'Cervical Cancer Screening', weight: 1, plan: 50, achievement: 38, unit: '%', direction: 'higher', verified: false },
+      { id: 38, agenda: 'qe', name: 'TB Treatment Success (TSR)', weight: 1, plan: 85, achievement: 79, unit: '%', direction: 'higher', verified: false },
+      { id: 39, agenda: 'qe', name: 'OTP Cured', weight: 1, plan: 75, achievement: 62, unit: '%', direction: 'higher', verified: false },
+      { id: 40, agenda: 'qe', name: 'ANC Early (<12 wks)', weight: 2, plan: 70, achievement: 56, unit: '%', direction: 'higher', verified: false },
+      { id: 41, agenda: 'qe', name: 'VIP', weight: 1, plan: 100, achievement: 80, unit: '%', direction: 'higher', verified: false },
+      { id: 42, agenda: 'qe', name: 'Model Household', weight: 1, plan: 100, achievement: 65, unit: '%', direction: 'higher', verified: false }
+    ];
+
+    let healthPosts = [
+      { id: 'hp1', name: 'Kebele 05', code: 'HP-05', kebele: '05', responsible: 'Amanuel', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' },
+      { id: 'hp2', name: 'Kebele 06', code: 'HP-06', kebele: '06', responsible: 'Bruktawit', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' },
+      { id: 'hp3', name: 'Kebele 11', code: 'HP-11', kebele: '11', responsible: 'Chala', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' },
+      { id: 'hp4', name: 'Kebele 15', code: 'HP-15', kebele: '15', responsible: 'Desta', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' },
+      { id: 'hp5', name: 'Kebele 04', code: 'HP-04', kebele: '04', responsible: 'Eden', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' },
+      { id: 'hp6', name: 'Kebele 17', code: 'HP-17', kebele: '17', responsible: 'Fikru', irScore: 0, lgScore: 0, qeScore: 0, overall: 0, status: 'Draft' }
+    ];
+
+    function buildHpIndicators(prefix) {
+      return [
+        { id: prefix + 1,  agenda: 'ir', name: '1.1 የመረጃ ጥራት ውጤት', weight: 7, plan: 90, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 2,  agenda: 'ir', name: '1.2 የመረጃ አጠቃቀም ውጤት', weight: 7, plan: 85, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 3,  agenda: 'ir', name: '1.3 የጤና መረጃ ሥርዓት አቅምና መሠረተ ልማት ውጤት', weight: 6, plan: 80, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 4,  agenda: 'lg', name: '2.1 የማህበረሰብ የውጤት ካርድ (CSC) ዉጤት', weight: 15, plan: 85, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 5,  agenda: 'lg', name: '2.2 የሪፎረም ትግበራ ዉጤት', weight: 15, plan: 80, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 6,  agenda: 'qe', name: '3.1 ከ ANC1 እስከ ወሊድ ለመድረስ ማቋረጥ መጠን (DOR)', weight: 3, plan: 100, achievement: 0, unit: '%', direction: 'lower' },
+        { id: prefix + 7,  agenda: 'qe', name: '3.2 8ኛ የእርግዝና ክትትል (ANC8) ሽፋን', weight: 2, plan: 90, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 8,  agenda: 'qe', name: '3.4 አጠቃላይ የቤተሰብ ምጣኔ (CAR) ሽፋን', weight: 2, plan: 80, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 9,  agenda: 'qe', name: '3.5 ቀደምት ድህረ ወሊድ እንክብካቤ (PNC) ሽፋን', weight: 2, plan: 85, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 10, agenda: 'qe', name: '3.6 በጤና ኬላ አስፈላጊ መድኃኒቶች መገኘት', weight: 2, plan: 100, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 11, agenda: 'qe', name: '3.7 ከ1 ዓመት በታች ሕፃናት ሙሉ ክትባት ሽፋን', weight: 3, plan: 95, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 12, agenda: 'qe', name: '3.8 የወባ ፖዘቲቭነት የማግኘት ምጣኔ', weight: 2, plan: 10, achievement: 0, unit: '%', direction: 'lower' },
+        { id: prefix + 13, agenda: 'qe', name: '3.9 የውጭ ታካሚ (OPD) አገልግሎት በነፍስ ወከፍ', weight: 2, plan: 2, achievement: 0, unit: 'visits', direction: 'higher' },
+        { id: prefix + 14, agenda: 'qe', name: '3.10 ከPenta 1 እስከ MCV1 የክትባት መቋረጥ ምጣኔ', weight: 2, plan: 5, achievement: 0, unit: '%', direction: 'lower' },
+        { id: prefix + 15, agenda: 'qe', name: '3.11 ሁሉም የቲቢ ታካሚዎች ተለይተው ጤ/ጣ የተላኩ', weight: 2, plan: 50, achievement: 0, unit: 'cases', direction: 'higher' },
+        { id: prefix + 16, agenda: 'qe', name: '3.12 የስኳር በሽታ ምርመራ', weight: 1, plan: 60, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 17, agenda: 'qe', name: '3.13 በጤ/ጣ በባለሙያዎች የወለዱ እናቶች ብዛት', weight: 2, plan: 85, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 18, agenda: 'qe', name: '3.14 ሁለት ዙር የቫይታሚን A የተቀበሉ ሕፃናት', weight: 1, plan: 80, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 19, agenda: 'qe', name: '3.15 ከ2 ዓመት በታች በእድገት ክትትል (GMP)', weight: 2, plan: 70, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 20, agenda: 'qe', name: '3.16 የደም ግፊት ምርመራ', weight: 1, plan: 75, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 21, agenda: 'qe', name: '3.17 በሳንባ ምች የታከሙ ህፃናት ብዛት', weight: 2, plan: 90, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 22, agenda: 'qe', name: '3.18 ለማኅጸን ጫፍ ካንሰር ምርመራ የተላኩ', weight: 1, plan: 50, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 23, agenda: 'qe', name: '3.19 ለ OTP ሕክምና የተላኩ ሕፃናት ብዛት', weight: 1, plan: 75, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 24, agenda: 'qe', name: '3.20 የተሻሻለ መ/ቤት ብዛት', weight: 1, plan: 100, achievement: 0, unit: '%', direction: 'higher' },
+        { id: prefix + 25, agenda: 'qe', name: '3.21 ሞዴል አባዎራ ብዛት', weight: 1, plan: 100, achievement: 0, unit: '%', direction: 'higher' }
+      ];
+    }
+
+    let hpIndicators = {
+      hp1: buildHpIndicators(100),
+      hp2: buildHpIndicators(200),
+      hp3: buildHpIndicators(300),
+      hp4: buildHpIndicators(400),
+      hp5: buildHpIndicators(500),
+      hp6: buildHpIndicators(600)
+    };
+
+    Object.keys(hpIndicators).forEach(hpId => {
+      hpIndicators[hpId].forEach((ind, idx) => {
+        const hpNum = parseInt(hpId.replace('hp', ''), 10);
+        const base = 50 + (hpNum * 5) + (idx % 7) * 3;
+        ind.achievement = Math.min(100, base);
+      });
+    });
+
+    let submissions = [];
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function calcPerformance(plan, ach, direction = 'higher') {
+      if (plan === undefined || plan === null || ach === undefined || ach === null) return 0;
+      let p = parseFloat(plan), a = parseFloat(ach);
+      if (isNaN(p) || isNaN(a) || p === 0) return 0;
+      let val;
+      if (direction === 'lower') { val = (a <= p) ? 100 : (p / a) * 100; }
+      else { val = (a / p) * 100; }
+      if (val > 100) val = 100;
+      if (val < 0) val = 0;
+      return Math.round(val);
+    }
+
+    function getStatusClass(perf) {
+      if (perf >= 85) return 'status-green';
+      if (perf >= 75) return 'status-yellow';
+      if (perf >= 50) return 'status-orange';
+      return 'status-red';
+    }
+
+    function getStatusText(perf) {
+      if (perf >= 85) return 'Excellent';
+      if (perf >= 75) return 'Satisfactory';
+      if (perf >= 50) return 'Weak';
+      return 'Critical';
+    }
+
+    function getStatusTextAm(perf) {
+      if (perf >= 85) return 'በጣም ጥሩ';
+      if (perf >= 75) return 'ጥሩ';
+      if (perf >= 50) return 'ደካማ';
+      return 'አሳሳቢ';
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"]/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m];
+      });
+    }
+
+    function updateAllIndicators() {
+      hcIndicators.forEach(k => {
+        k.performance = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+      });
+      hcAgendas.forEach(ag => {
+        let items = hcIndicators.filter(i => i.agenda === ag.id);
+        if (items.length) {
+          let totalWeight = items.reduce((s, i) => s + (i.weight || 0), 0);
+          let weightedSum = items.reduce((s, i) => s + ((i.performance || 0) * (i.weight || 0)), 0);
+          ag.score = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
+        } else {
+          ag.score = 0;
+        }
+      });
+      healthPosts.forEach(hp => {
+        let indicators = hpIndicators[hp.id] || [];
+        hp.irScore = calcAgendaScore(indicators.filter(i => i.agenda === 'ir'));
+        hp.lgScore = calcAgendaScore(indicators.filter(i => i.agenda === 'lg'));
+        hp.qeScore = calcAgendaScore(indicators.filter(i => i.agenda === 'qe'));
+        hp.overall = Math.round(hp.irScore * 0.20 + hp.lgScore * 0.30 + hp.qeScore * 0.50);
+      });
+    }
+
+    function calcAgendaScore(items) {
+      if (!items || items.length === 0) return 0;
+      let totalWeight = items.reduce((s, i) => s + (i.weight || 0), 0);
+      if (totalWeight === 0) return 0;
+      let weightedSum = items.reduce((s, i) => {
+        return s + (calcPerformance(i.plan, i.achievement, i.direction || 'higher') * (i.weight || 0));
+      }, 0);
+      return Math.round(weightedSum / totalWeight);
+    }
+
+    function getHCScore() {
+      let totalWeight = hcAgendas.reduce((s, a) => s + a.weight, 0);
+      if (totalWeight === 0) return 0;
+      let weightedSum = hcAgendas.reduce((s, a) => s + (a.score * a.weight), 0);
+      return Math.round(weightedSum / totalWeight);
+    }
+
+    function getPHCUScore() {
+      let hcScore = getHCScore();
+      let hpAvg = healthPosts.length > 0
+        ? Math.round(healthPosts.reduce((s, hp) => s + hp.overall, 0) / healthPosts.length)
+        : 0;
+      return Math.round(hcScore * 0.6 + hpAvg * 0.4);
+    }
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('page-' + pageId);
+      if (target) target.classList.add('active');
+      currentPage = pageId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goHome() {
+      showPage('home');
+      updateHomeCounts();
+    }
+
+    function updateHomeCounts() {
+      const hcCount = document.getElementById('hcIndicatorCount');
+      const hpCount = document.getElementById('hpCountBadge');
+      const adminCount = document.getElementById('adminBadge');
+      if (hcCount) hcCount.textContent = hcIndicators.length + ' indicators';
+      if (hpCount) hpCount.textContent = healthPosts.length + ' health posts';
+      if (adminCount) adminCount.textContent = submissions.length + ' submissions';
+    }
+
+    function openHC() {
+      showPage('hc');
+      currentHcTab = 'overview';
+      renderHC();
+    }
+
+    function openHPs() {
+      showPage('hp');
+      currentHpId = null;
+      currentKebele = null;
+      renderHPs();
+    }
+
+    function openAdmin() {
+      showPage('admin');
+      currentAdminTab = 'submissions';
+      renderAdmin();
+    }
+
+    function renderHC() {
+      updateAllIndicators();
+      const hcScore = getHCScore();
+      const container = document.getElementById('hcContent');
+      container.innerHTML = `
+        <div class="card" style="border-left:6px solid var(--primary);">
+          <div class="flex-between">
+            <div>
+              <div style="font-weight:800;font-size:1.05rem;color:var(--primary);">🏥 Debremarkos Health Center</div>
+              <div class="text-muted" style="font-size:0.78rem;">Overall Performance: <strong style="font-size:1rem;">${hcScore}%</strong></div>
+            </div>
+            <span class="status-badge ${getStatusClass(hcScore)}">${getStatusText(hcScore)}</span>
+          </div>
+        </div>
+        <div class="kpi-grid">
+          ${hcAgendas.map(a => `
+            <div class="kpi-card" style="border-left-color:${a.color};">
+              <div class="label">${a.name}</div>
+              <div class="value" style="color:${a.color};">${a.score}%</div>
+              <div class="sub">Weight: ${a.weight}%</div>
+            </div>
+          `).join('')}
+        </div>
+        <div id="hcTabContent"></div>
+      `;
+      renderHCTab(currentHcTab);
+    }
+
+    function renderHCTab(tab) {
+      currentHcTab = tab;
+      const container = document.getElementById('hcTabContent');
+      if (!container) return;
+
+      if (tab === 'overview') {
+        container.innerHTML = `
+          <div class="card">
+            <div class="card-header">📊 Agenda Performance</div>
+            ${hcAgendas.map(a => `
+              <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #eef2f6;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <i class="fas ${a.icon}" style="color:${a.color};width:20px;text-align:center;"></i>
+                  <span style="font-weight:700;font-size:0.85rem;">${a.name}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-weight:800;color:${a.color};font-size:1rem;">${a.score}%</span>
+                  <span class="status-badge ${getStatusClass(a.score)}">${getStatusText(a.score)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="card">
+            <div class="card-header">📈 Performance Trend (Quarterly)</div>
+            <div class="chart-box">
+              <div class="chart-bar" style="height:60%;"><span class="bar-label">60%</span></div>
+              <div class="chart-bar" style="height:68%;background:var(--secondary);"><span class="bar-label">68%</span></div>
+              <div class="chart-bar" style="height:74%;background:#f9a825;"><span class="bar-label">74%</span></div>
+              <div class="chart-bar" style="height:80%;background:#2e7d32;"><span class="bar-label">80%</span></div>
+              <div class="chart-bar" style="height:${Math.max(30, getHCScore())}%;background:var(--primary);"><span class="bar-label">${getHCScore()}%</span></div>
+            </div>
+            <div class="chart-label-row"><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span><span>Current</span></div>
+          </div>
+          <div class="card">
+            <div class="card-header">🥧 Agenda Weight Distribution</div>
+            <div class="pie-chart-wrap">
+              <div class="pie-chart" style="background:conic-gradient(
+                #2e7d32 0deg 18deg,
+                #f9a825 18deg 72deg,
+                #0b3b5c 72deg 144deg,
+                #2c7a7b 144deg 180deg,
+                #b71c1c 180deg 360deg
+              );"></div>
+              <div class="pie-legend">
+                ${hcAgendas.map(a => `
+                  <div class="legend-item">
+                    <div class="legend-dot" style="background:${a.color};"></div>
+                    <span>${a.name} (${a.weight}%)</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'data') {
+        let html = '<div class="card"><div class="card-header">📋 HC Indicator Data</div>';
+        hcAgendas.forEach(a => {
+          let items = hcIndicators.filter(i => i.agenda === a.id);
+          if (!items.length) return;
+          html += `<div style="margin-top:16px;">
+            <div style="font-weight:800;font-size:0.88rem;color:${a.color};margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+              <i class="fas ${a.icon}"></i> ${a.name} (${a.weight}%)
+            </div>
+            <div class="table-wrap"><table class="indicator-table">
+              <thead><tr><th>Indicator</th><th>Wt</th><th>Target</th><th>Actual</th><th>Perf</th><th>Status</th></tr></thead>
+              <tbody>`;
+          items.forEach(k => {
+            let perf = k.performance || calcPerformance(k.plan, k.achievement, k.direction);
+            html += `<tr>
+              <td>${k.name}</td>
+              <td>${k.weight}%</td>
+              <td>${k.plan}</td>
+              <td><input type="number" class="hc-ach-input" data-id="${k.id}" value="${k.achievement || ''}" style="width:60px;padding:5px;border-radius:6px;border:2px solid #d1d9e6;text-align:center;font-size:0.8rem;"></td>
+              <td><strong>${perf}%</strong></td>
+              <td><span class="status-badge ${getStatusClass(perf)}">${getStatusText(perf)}</span></td>
+            </tr>`;
+          });
+          html += '</tbody></table></div></div>';
+        });
+        html += `<div class="action-bar">
+          <button class="btn btn-green" onclick="window._hcSubmitData()"><i class="fas fa-paper-plane"></i> Submit HC Data to Admin</button>
+          <button class="btn btn-copy" onclick="window._hcCopyData()"><i class="fas fa-copy"></i> Copy Data</button>
+          <button class="btn btn-share" onclick="window._hcShareData()"><i class="fas fa-share-nodes"></i> Share</button>
+        </div></div>`;
+        container.innerHTML = html;
+        container.querySelectorAll('.hc-ach-input').forEach(inp => {
+          inp.addEventListener('change', function() {
+            let id = parseInt(this.dataset.id);
+            let val = parseFloat(this.value);
+            let k = hcIndicators.find(d => d.id === id);
+            if (k && !isNaN(val)) {
+              k.achievement = val;
+              updateAllIndicators();
+              renderHC();
+              renderHCTab('data');
+              showToast('Data updated', 'success');
+            }
+          });
+        });
+      } else if (tab === 'analysis') {
+        updateAllIndicators();
+        let strengths = [], weaknesses = [], threats = [];
+        hcIndicators.forEach(k => {
+          let p = k.performance || calcPerformance(k.plan, k.achievement, k.direction);
+          if (p >= 85) strengths.push({ name: k.name, perf: p });
+          else if (p >= 50 && p < 75) weaknesses.push({ name: k.name, perf: p });
+          else if (p < 50) threats.push({ name: k.name, perf: p });
+        });
+        container.innerHTML = `
+          <div class="card">
+            <div class="card-header">📊 Performance Analysis (SWOT)</div>
+            <div class="swot-grid">
+              <div class="swot-card" style="background:#e8f5e9;">
+                <h4 style="color:#1e4a1e;"><i class="fas fa-thumbs-up"></i> Strengths (${strengths.length})</h4>
+                <ul>${strengths.slice(0,8).map(s => `<li>✅ ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted">None identified</li>'}</ul>
+              </div>
+              <div class="swot-card" style="background:#fff8e1;">
+                <h4 style="color:#7d5d00;"><i class="fas fa-exclamation-triangle"></i> Weaknesses (${weaknesses.length})</h4>
+                <ul>${weaknesses.slice(0,8).map(s => `<li>⚠️ ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted">None identified</li>'}</ul>
+              </div>
+              <div class="swot-card" style="background:#ffebee;">
+                <h4 style="color:#9a1f1f;"><i class="fas fa-skull-crossbones"></i> Threats / Gaps (${threats.length})</h4>
+                <ul>${threats.slice(0,8).map(s => `<li>🚨 ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted">None identified</li>'}</ul>
+              </div>
+              <div class="swot-card" style="background:#e3f2fd;">
+                <h4 style="color:#0b3b5c;"><i class="fas fa-road"></i> Way Forward</h4>
+                <ul>
+                  <li>📌 Conduct refresher training</li>
+                  <li>📌 Strengthen supervision</li>
+                  <li>📌 Improve data quality</li>
+                  <li>📌 Enhance community engagement</li>
+                  <li>📌 Prioritize low-performing indicators</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">📈 Indicator Performance Comparison</div>
+            <div class="chart-box">
+              ${hcIndicators.slice(0,12).map(k => {
+                let p = k.performance || calcPerformance(k.plan, k.achievement, k.direction);
+                return `<div class="chart-bar" style="height:${Math.max(5,p)}%;background:${p >= 85 ? '#2e7d32' : p >= 75 ? '#f9a825' : p >= 50 ? '#e65100' : '#b71c1c'};" title="${k.name}: ${p}%"><span class="bar-label">${p}%</span></div>`;
+              }).join('')}
+            </div>
+            <div class="chart-label-row" style="font-size:0.6rem;">
+              ${hcIndicators.slice(0,12).map((k,i) => `<span>${i+1}</span>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">📋 Detailed Indicator Performance</div>
+            <div class="table-wrap"><table class="indicator-table">
+              <thead><tr><th>Indicator</th><th>Target</th><th>Actual</th><th>Perf</th><th>Status</th></tr></thead>
+              <tbody>
+              ${hcIndicators.map(k => {
+                let perf = k.performance || calcPerformance(k.plan, k.achievement, k.direction);
+                return `<tr><td>${k.name}</td><td>${k.plan}</td><td>${k.achievement}</td><td><strong>${perf}%</strong></td><td><span class="status-badge ${getStatusClass(perf)}">${getStatusText(perf)}</span></td></tr>`;
+              }).join('')}
+              </tbody></table></div>
+          </div>
+          <div class="action-bar">
+            <button class="btn btn-green" onclick="window._hcSubmitData()"><i class="fas fa-paper-plane"></i> Submit to Admin</button>
+            <button class="btn btn-copy" onclick="window._hcCopyData()"><i class="fas fa-copy"></i> Copy Analysis</button>
+            <button class="btn btn-share" onclick="window._hcShareData()"><i class="fas fa-share-nodes"></i> Share</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderHPs() {
+      updateAllIndicators();
+      const container = document.getElementById('hpContent');
+      if (!container) return;
+
+      if (currentHpId) {
+        renderHPDetail(currentHpId, currentHpTab);
+        return;
+      }
+
+      const frameworkHtml = `
+        <div class="framework-section">
+          <div class="section-title">1 የመረጃ አብዮት (20%)</div>
+          <div class="framework-item"><span class="code">1.1</span> የመረጃ ጥራት ውጤት</div>
+          <div class="framework-item"><span class="code">1.2</span> የመረጃ አጠቃቀም ውጤት</div>
+          <div class="framework-item"><span class="code">1.3</span> የጤና መረጃ ሥርዓት አቅምና መሠረተ ልማት ውጤት</div>
+        </div>
+        <div class="framework-section">
+          <div class="section-title">2 አመራርና አስተዳደር (30%)</div>
+          <div class="framework-item"><span class="code">2.1</span> የማህበረሰብ የውጤት ካርድ (CSC) ዉጤት</div>
+          <div class="framework-item"><span class="code">2.2</span> የሪፎረም ትግበራ ዉጤት</div>
+        </div>
+        <div class="framework-section">
+          <div class="section-title">3 ጠቅላላ የጥራትና ፍትሃዊነት (50%)</div>
+          <div class="framework-item"><span class="code">3.1</span> ከ ANC1 እስከ ወሊድ ለመድረስ ማቋረጥ መጠን (DOR)</div>
+          <div class="framework-item"><span class="code">3.2</span> 8ኛ የእርግዝና ክትትል (ANC8) ሽፋን</div>
+          <div class="framework-item"><span class="code">3.4</span> አጠቃላይ የቤተሰብ ምጣኔ (CAR) ሽፋን</div>
+          <div class="framework-item"><span class="code">3.5</span> ቀደምት ድህረ ወሊድ እንክብካቤ (PNC) ሽፋን</div>
+          <div class="framework-item"><span class="code">3.6</span> በጤና ኬላ አስፈላጊ መድኃኒቶች መገኘት</div>
+          <div class="framework-item"><span class="code">3.7</span> ከ1 ዓመት በታች ሕፃናት ሙሉ ክትባት ሽፋን</div>
+          <div class="framework-item"><span class="code">3.8</span> የወባ ፖዘቲቭነት የማግኘት ምጣኔ</div>
+          <div class="framework-item"><span class="code">3.9</span> የውጭ ታካሚ (OPD) አገልግሎት በነፍስ ወከፍ</div>
+          <div class="framework-item"><span class="code">3.10</span> ከPenta 1 እስከ MCV1 የክትባት መቋረጥ ምጣኔ</div>
+          <div class="framework-item"><span class="code">3.11</span> ሁሉም የቲቢ ታካሚዎች ተለይተው ጤ/ጣ የተላኩ</div>
+          <div class="framework-item"><span class="code">3.12</span> የስኳር በሽታ ምርመራ</div>
+          <div class="framework-item"><span class="code">3.13</span> በጤ/ጣ በባለሙያዎች የወለዱ እናቶች ብዛት</div>
+          <div class="framework-item"><span class="code">3.14</span> ሁለት ዙር የቫይታሚን A የተቀበሉ ሕፃናት</div>
+          <div class="framework-item"><span class="code">3.15</span> ከ2 ዓመት በታች በእድገት ክትትል (GMP)</div>
+          <div class="framework-item"><span class="code">3.16</span> የደም ግፊት ምርመራ</div>
+          <div class="framework-item"><span class="code">3.17</span> በሳንባ ምች የታከሙ ህፃናት ብዛት</div>
+          <div class="framework-item"><span class="code">3.18</span> ለማኅጸን ጫፍ ካንሰር ምርመራ የተላኩ</div>
+          <div class="framework-item"><span class="code">3.19</span> ለ OTP ሕክምና የተላኩ ሕፃናት ብዛት</div>
+          <div class="framework-item"><span class="code">3.20</span> የተሻሻለ መ/ቤት ብዛት</div>
+          <div class="framework-item"><span class="code">3.21</span> ሞዴል አባዎራ ብዛት</div>
+        </div>
+      `;
+
+      container.innerHTML = `
+        ${frameworkHtml}
+        <div style="margin-top:16px;">
+          <div class="amharic" style="font-weight:800;font-size:1rem;color:var(--secondary);margin-bottom:12px;">📋 የጤና ኬላዎች ዝርዝር — ኬብሌ ይምረጡ</div>
+          <div class="selector-grid" id="hpSelectorGrid">
+            ${healthPosts.map(hp => `
+              <div class="selector-btn ${currentKebele === hp.kebele ? 'selected' : ''}" data-hp="${hp.id}" data-kebele="${hp.kebele}" tabindex="0" role="button">
+                <div>${hp.name}</div>
+                <div class="sub-label">${hp.responsible}</div>
+                <div class="score-pill">${hp.overall}%</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      container.querySelectorAll('.selector-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const hpId = this.dataset.hp;
+          const kebele = this.dataset.kebele;
+          currentKebele = kebele;
+          window._hpSelect(hpId, 'overview');
+        });
+        btn.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        });
+      });
+    }
+
+    function renderHPDetail(hpId, tab) {
+      const container = document.getElementById('hpContent');
+      const hp = healthPosts.find(h => h.id === hpId);
+      if (!hp) { currentHpId = null; renderHPs(); return; }
+
+      const bcCurrent = document.getElementById('hpBreadcrumbCurrent');
+      if (bcCurrent) bcCurrent.textContent = hp.name + ' (Kebele ' + hp.kebele + ')';
+
+      const indicators = hpIndicators[hpId] || [];
+
+      let backHtml = `<div class="mb-2">
+        <button class="btn btn-sm btn-outline" onclick="window._hpGoToList()"><i class="fas fa-arrow-left"></i> ወደ ጤና ኬላዎች ዝርዝር</button>
+      </div>`;
+
+      if (tab === 'overview') {
+        container.innerHTML = backHtml + `
+          <div class="card" style="border-left:6px solid var(--secondary);">
+            <div class="flex-between">
+              <div>
+                <div class="amharic" style="font-weight:800;font-size:1.05rem;color:var(--secondary);">${hp.name} <span style="font-size:0.75rem;color:#64748b;">(${hp.code})</span></div>
+                <div class="amharic text-muted" style="font-size:0.75rem;">ቀበሌ ${hp.kebele} · ኃላፊ: ${hp.responsible} · አጠቃላይ: <strong>${hp.overall}%</strong></div>
+              </div>
+              <span class="status-badge ${getStatusClass(hp.overall)} amharic">${getStatusTextAm(hp.overall)}</span>
+            </div>
+          </div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="kpi-card" style="border-left-color:var(--primary);">
+              <div class="label amharic">IR ውጤት</div><div class="value">${hp.irScore}%</div><div class="sub amharic">ክብደት 20%</div>
+            </div>
+            <div class="kpi-card" style="border-left-color:var(--secondary);">
+              <div class="label amharic">LG ውጤት</div><div class="value">${hp.lgScore}%</div><div class="sub amharic">ክብደት 30%</div>
+            </div>
+            <div class="kpi-card" style="border-left-color:#b71c1c;">
+              <div class="label amharic">Q&E ውጤት</div><div class="value">${hp.qeScore}%</div><div class="sub amharic">ክብደት 50%</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header amharic">📊 የአፈጻጸም ማጠቃለያ</div>
+            <div class="chart-box">
+              <div class="chart-bar" style="height:${Math.max(20,hp.irScore)}%;background:var(--primary);"><span class="bar-label">${hp.irScore}%</span></div>
+              <div class="chart-bar" style="height:${Math.max(20,hp.lgScore)}%;background:var(--secondary);"><span class="bar-label">${hp.lgScore}%</span></div>
+              <div class="chart-bar" style="height:${Math.max(20,hp.qeScore)}%;background:#b71c1c;"><span class="bar-label">${hp.qeScore}%</span></div>
+            </div>
+            <div class="chart-label-row amharic"><span>IR (20%)</span><span>LG (30%)</span><span>Q&E (50%)</span></div>
+          </div>
+          <div class="card">
+            <div class="card-header amharic">📋 የአመልካች ማጠቃለያ</div>
+            ${indicators.slice(0, 10).map(k => {
+              let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+              return `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #eef2f6;">
+                <span class="amharic" style="font-size:0.78rem;flex:1;">${k.name}</span>
+                <span style="font-weight:800;font-size:0.85rem;margin-left:8px;">${perf}%</span>
+                <span class="status-badge ${getStatusClass(perf)} amharic" style="margin-left:6px;">${getStatusTextAm(perf)}</span>
+              </div>`;
+            }).join('')}
+          </div>
+          <div class="action-bar">
+            <button class="btn btn-green amharic" onclick="window._hpSubmitData('${hpId}')"><i class="fas fa-paper-plane"></i> Send</button>
+            <button class="btn btn-copy" onclick="window._hpCopyData('${hpId}')"><i class="fas fa-copy"></i> Copy</button>
+            <button class="btn btn-share" onclick="window._hpShareData('${hpId}')"><i class="fas fa-share-nodes"></i> Share</button>
+          </div>
+        `;
+      } else if (tab === 'data') {
+        const irItems = indicators.filter(i => i.agenda === 'ir');
+        const lgItems = indicators.filter(i => i.agenda === 'lg');
+        const qeItems = indicators.filter(i => i.agenda === 'qe');
+
+        let html = backHtml + `<div class="card" style="border-left:6px solid var(--secondary);">
+          <div class="amharic" style="font-weight:800;font-size:1rem;color:var(--secondary);">${hp.name} — መረጃ ማስገቢያ</div>
+          <div class="amharic text-muted" style="font-size:0.75rem;">ቀበሌ ${hp.kebele} · ኃላፊ: ${hp.responsible}</div>
+        </div>`;
+
+        html += `<div class="card"><div class="amharic" style="font-weight:800;font-size:0.9rem;color:#f9a825;margin-bottom:8px;">1. የመረጃ አብዮት (20%)</div>
+          <div class="table-wrap"><table class="indicator-table"><thead><tr><th class="amharic">አመልካች</th><th class="amharic">ክብደት</th><th class="amharic">ዒላማ</th><th class="amharic">ውጤት</th><th class="amharic">አፈጻጸም</th><th class="amharic">ሁኔታ</th></tr></thead><tbody>`;
+        irItems.forEach(k => {
+          let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+          html += `<tr>
+            <td class="amharic">${k.name}</td>
+            <td>${k.weight}%</td>
+            <td>${k.plan}</td>
+            <td><input type="number" class="hp-ach-input" data-id="${k.id}" data-hp="${hpId}" value="${k.achievement || ''}" style="width:60px;padding:5px;border-radius:6px;border:2px solid #d1d9e6;text-align:center;font-size:0.8rem;"></td>
+            <td><strong>${perf}%</strong></td>
+            <td><span class="status-badge ${getStatusClass(perf)} amharic">${getStatusTextAm(perf)}</span></td>
+          </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+
+        html += `<div class="card"><div class="amharic" style="font-weight:800;font-size:0.9rem;color:#0b3b5c;margin-bottom:8px;">2. አመራርና አስተዳደር (30%)</div>
+          <div class="table-wrap"><table class="indicator-table"><thead><tr><th class="amharic">አመልካች</th><th class="amharic">ክብደት</th><th class="amharic">ዒላማ</th><th class="amharic">ውጤት</th><th class="amharic">አፈጻጸም</th><th class="amharic">ሁኔታ</th></tr></thead><tbody>`;
+        lgItems.forEach(k => {
+          let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+          html += `<tr>
+            <td class="amharic">${k.name}</td>
+            <td>${k.weight}%</td>
+            <td>${k.plan}</td>
+            <td><input type="number" class="hp-ach-input" data-id="${k.id}" data-hp="${hpId}" value="${k.achievement || ''}" style="width:60px;padding:5px;border-radius:6px;border:2px solid #d1d9e6;text-align:center;font-size:0.8rem;"></td>
+            <td><strong>${perf}%</strong></td>
+            <td><span class="status-badge ${getStatusClass(perf)} amharic">${getStatusTextAm(perf)}</span></td>
+          </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+
+        html += `<div class="card"><div class="amharic" style="font-weight:800;font-size:0.9rem;color:#b71c1c;margin-bottom:8px;">3. ጠቅላላ የጥራትና ፍትሃዊነት (50%)</div>
+          <div class="table-wrap"><table class="indicator-table"><thead><tr><th class="amharic">አመልካች</th><th class="amharic">ክብደት</th><th class="amharic">ዒላማ</th><th class="amharic">ውጤት</th><th class="amharic">አፈጻጸም</th><th class="amharic">ሁኔታ</th></tr></thead><tbody>`;
+        qeItems.forEach(k => {
+          let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+          html += `<tr>
+            <td class="amharic">${k.name}</td>
+            <td>${k.weight}%</td>
+            <td>${k.plan}</td>
+            <td><input type="number" class="hp-ach-input" data-id="${k.id}" data-hp="${hpId}" value="${k.achievement || ''}" style="width:60px;padding:5px;border-radius:6px;border:2px solid #d1d9e6;text-align:center;font-size:0.8rem;"></td>
+            <td><strong>${perf}%</strong></td>
+            <td><span class="status-badge ${getStatusClass(perf)} amharic">${getStatusTextAm(perf)}</span></td>
+          </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+
+        html += `<div class="action-bar">
+          <button class="btn btn-green amharic" onclick="window._hpSubmitData('${hpId}')"><i class="fas fa-paper-plane"></i> Send</button>
+          <button class="btn btn-copy" onclick="window._hpCopyData('${hpId}')"><i class="fas fa-copy"></i> ቅዳ</button>
+          <button class="btn btn-share" onclick="window._hpShareData('${hpId}')"><i class="fas fa-share-nodes"></i> አጋራ</button>
+          <button class="btn btn-outline amharic" onclick="window._hpSelect('${hpId}','data')"><i class="fas fa-rotate"></i> አድስ</button>
+        </div>`;
+
+        container.innerHTML = html;
+        container.querySelectorAll('.hp-ach-input').forEach(inp => {
+          inp.addEventListener('change', function() {
+            let id = parseInt(this.dataset.id);
+            let hpId = this.dataset.hp;
+            let val = parseFloat(this.value);
+            let item = (hpIndicators[hpId] || []).find(d => d.id === id);
+            if (item && !isNaN(val)) {
+              item.achievement = val;
+              updateAllIndicators();
+              renderHPDetail(hpId, 'data');
+              showToast('መረጃ ተቀይሯል', 'success');
+            }
+          });
+        });
+      } else if (tab === 'analysis') {
+        let strengths = [], weaknesses = [], threats = [];
+        indicators.forEach(k => {
+          let p = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+          if (p >= 85) strengths.push({ name: k.name, perf: p });
+          else if (p >= 50 && p < 75) weaknesses.push({ name: k.name, perf: p });
+          else if (p < 50) threats.push({ name: k.name, perf: p });
+        });
+
+        container.innerHTML = backHtml + `
+          <div class="card" style="border-left:6px solid var(--secondary);">
+            <div class="amharic" style="font-weight:800;font-size:1rem;color:var(--secondary);">${hp.name} — ትንተና</div>
+            <div class="amharic text-muted" style="font-size:0.75rem;">ቀበሌ ${hp.kebele} · አጠቃላይ: <strong>${hp.overall}%</strong></div>
+          </div>
+          <div class="swot-grid">
+            <div class="swot-card" style="background:#e8f5e9;">
+              <h4 class="amharic" style="color:#1e4a1e;"><i class="fas fa-thumbs-up"></i> ጥንካሬዎች (${strengths.length})</h4>
+              <ul>${strengths.map(s => `<li class="amharic">✅ ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted amharic">ምንም አልተገኘም</li>'}</ul>
+            </div>
+            <div class="swot-card" style="background:#fff8e1;">
+              <h4 class="amharic" style="color:#7d5d00;"><i class="fas fa-exclamation-triangle"></i> ድክመቶች (${weaknesses.length})</h4>
+              <ul>${weaknesses.map(s => `<li class="amharic">⚠️ ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted amharic">ምንም አልተገኘም</li>'}</ul>
+            </div>
+            <div class="swot-card" style="background:#ffebee;">
+              <h4 class="amharic" style="color:#9a1f1f;"><i class="fas fa-skull-crossbones"></i> ስጋቶች (${threats.length})</h4>
+              <ul>${threats.map(s => `<li class="amharic">🚨 ${s.name} <strong>${s.perf}%</strong></li>`).join('') || '<li class="text-muted amharic">ምንም አልተገኘም</li>'}</ul>
+            </div>
+            <div class="swot-card" style="background:#e3f2fd;">
+              <h4 class="amharic" style="color:#0b3b5c;"><i class="fas fa-road"></i> ወደፊት የሚያስፈልግ</h4>
+              <ul>
+                <li class="amharic">📌 ተደጋጋሚ ስልጠና ማድረግ</li>
+                <li class="amharic">📌 ክትትልና ድጋፍ ማጠናከር</li>
+                <li class="amharic">📌 የመረጃ ጥራት ማሻሻል</li>
+                <li class="amharic">📌 የማህበረሰብ ተሳትፎ ማሳደግ</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="card-header amharic">📈 የአመልካች አፈጻጸም ንጽጽር</div>
+            <div class="chart-box">
+              ${indicators.map(k => {
+                let p = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+                return `<div class="chart-bar" style="height:${Math.max(5,p)}%;background:${p >= 85 ? '#2e7d32' : p >= 75 ? '#f9a825' : p >= 50 ? '#e65100' : '#b71c1c'};" title="${k.name}: ${p}%"><span class="bar-label">${p}%</span></div>`;
+              }).join('')}
+            </div>
+            <div class="chart-label-row" style="font-size:0.55rem;">
+              ${indicators.map((k,i) => `<span>${i+1}</span>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header amharic">📋 የአመልካች ዝርዝር አፈጻጸም</div>
+            <div class="table-wrap"><table class="indicator-table">
+              <thead><tr><th class="amharic">አመልካች</th><th class="amharic">ዒላማ</th><th class="amharic">ውጤት</th><th class="amharic">አፈጻጸም</th><th class="amharic">ሁኔታ</th></tr></thead>
+              <tbody>
+              ${indicators.map(k => {
+                let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+                return `<tr><td class="amharic">${k.name}</td><td>${k.plan}</td><td>${k.achievement}</td><td><strong>${perf}%</strong></td><td><span class="status-badge ${getStatusClass(perf)} amharic">${getStatusTextAm(perf)}</span></td></tr>`;
+              }).join('')}
+              </tbody></table></div>
+          </div>
+          <div class="action-bar">
+            <button class="btn btn-green amharic" onclick="window._hpSubmitData('${hpId}')"><i class="fas fa-paper-plane"></i> Send</button>
+            <button class="btn btn-copy" onclick="window._hpCopyData('${hpId}')"><i class="fas fa-copy"></i> Copy Analysis</button>
+            <button class="btn btn-share" onclick="window._hpShareData('${hpId}')"><i class="fas fa-share-nodes"></i> Share</button>
+          </div>
+        `;
+      }
+    }
+
+    function renderAdmin() {
+      const container = document.getElementById('adminContent');
+      if (!container) return;
+      renderAdminTab(currentAdminTab);
+    }
+
+    function renderAdminTab(tab) {
+      currentAdminTab = tab;
+      const container = document.getElementById('adminContent');
+      if (!container) return;
+
+      if (tab === 'submissions') {
+        let html = `
+          <div class="card" style="border-left:6px solid #6d28d9;">
+            <div class="flex-between">
+              <div>
+                <div style="font-weight:800;font-size:1.05rem;color:#6d28d9;">🛡️ Admin Dashboard — Submissions</div>
+                <div class="text-muted" style="font-size:0.78rem;">Total submissions: <strong>${submissions.length}</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">📥 Submitted Data</div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Facility</th><th>Type</th><th>Kebele</th><th>Submitted By</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+        `;
+        if (submissions.length === 0) {
+          html += '<tr><td colspan="7" class="no-data">No submissions yet. Data submitted from HC or HP will appear here.</td></tr>';
+        } else {
+          submissions.forEach((s, idx) => {
+            const statusClass = s.status === 'Approved' ? 'status-approved'
+              : s.status === 'Submitted' ? 'status-submitted'
+              : s.status === 'Under Review' ? 'status-review'
+              : s.status === 'Returned' ? 'status-returned'
+              : 'status-draft';
+            html += `<tr>
+              <td><strong>${escapeHtml(s.facility)}</strong></td>
+              <td>${s.facilityType}</td>
+              <td>${s.kebele || '—'}</td>
+              <td>${escapeHtml(s.user)}</td>
+              <td style="font-size:0.72rem;">${escapeHtml(s.submittedAt)}</td>
+              <td><span class="status-badge ${statusClass}">${s.status}</span></td>
+              <td>
+                <button class="btn btn-sm btn-green" onclick="window._adminApprove(${idx})" title="Approve" style="min-height:30px;padding:4px 10px;font-size:0.7rem;">✓</button>
+                <button class="btn btn-sm btn-red" onclick="window._adminReturn(${idx})" title="Return" style="min-height:30px;padding:4px 10px;font-size:0.7rem;">↩</button>
+              </td>
+            </tr>`;
+          });
+        }
+        html += `</tbody></table></div></div>`;
+        container.innerHTML = html;
+      } else if (tab === 'aggregate') {
+        updateAllIndicators();
+        const hcScore = getHCScore();
+        const phcuScore = getPHCUScore();
+        const hpAvg = healthPosts.length > 0
+          ? Math.round(healthPosts.reduce((s, hp) => s + hp.overall, 0) / healthPosts.length)
+          : 0;
+
+        container.innerHTML = `
+          <div class="card" style="border-left:6px solid #6d28d9;">
+            <div style="font-weight:800;font-size:1.05rem;color:#6d28d9;">📊 PHCU Aggregate Performance</div>
+          </div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="kpi-card" style="border-left-color:var(--primary);">
+              <div class="label">PHCU Overall</div><div class="value">${phcuScore}%</div><div class="sub">HC 60% + HP avg 40%</div>
+            </div>
+            <div class="kpi-card" style="border-left-color:var(--secondary);">
+              <div class="label">HC Score</div><div class="value">${hcScore}%</div><div class="sub">Health Center</div>
+            </div>
+            <div class="kpi-card" style="border-left-color:#f9a825;">
+              <div class="label">HP Average</div><div class="value">${hpAvg}%</div><div class="sub">${healthPosts.length} health posts</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">📋 Facility Comparison</div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Facility</th><th>Type</th><th>Kebele</th><th>IR</th><th>LG</th><th>Q&E</th><th>Overall</th><th>Status</th></tr></thead>
+              <tbody>
+              <tr style="background:#f0f7ff;">
+                <td><strong>Debremarkos HC</strong></td>
+                <td>HC</td>
+                <td>—</td>
+                <td>${hcAgendas.find(a=>a.id==='ir')?.score||0}%</td>
+                <td>${hcAgendas.find(a=>a.id==='lg')?.score||0}%</td>
+                <td>${hcAgendas.find(a=>a.id==='qe')?.score||0}%</td>
+                <td><strong>${hcScore}%</strong></td>
+                <td><span class="status-badge ${getStatusClass(hcScore)}">${getStatusText(hcScore)}</span></td>
+              </tr>
+              ${healthPosts.map(hp => `
+                <tr>
+                  <td><strong>${hp.name}</strong></td>
+                  <td>HP</td>
+                  <td>${hp.kebele}</td>
+                  <td>${hp.irScore}%</td>
+                  <td>${hp.lgScore}%</td>
+                  <td>${hp.qeScore}%</td>
+                  <td><strong>${hp.overall}%</strong></td>
+                  <td><span class="status-badge ${getStatusClass(hp.overall)}">${getStatusText(hp.overall)}</span></td>
+                </tr>
+              `).join('')}
+              </tbody></table></div>
+          </div>
+        `;
+      } else if (tab === 'comparison') {
+        updateAllIndicators();
+        container.innerHTML = `
+          <div class="card" style="border-left:6px solid #6d28d9;">
+            <div style="font-weight:800;font-size:1.05rem;color:#6d28d9;">📊 Kebele / HP Comparison</div>
+          </div>
+          <div class="card">
+            <div class="card-header">📈 Overall Performance by Kebele</div>
+            <div class="chart-box">
+              ${healthPosts.map(hp => `
+                <div class="chart-bar" style="height:${Math.max(5,hp.overall)}%;background:${hp.overall >= 85 ? '#2e7d32' : hp.overall >= 75 ? '#f9a825' : hp.overall >= 50 ? '#e65100' : '#b71c1c'};" title="${hp.name}: ${hp.overall}%"><span class="bar-label">${hp.overall}%</span></div>
+              `).join('')}
+            </div>
+            <div class="chart-label-row">
+              ${healthPosts.map(hp => `<span style="font-size:0.65rem;">${hp.kebele}</span>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">📋 Detailed Comparison</div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Kebele</th><th>HP</th><th>Responsible</th><th>IR</th><th>LG</th><th>Q&E</th><th>Overall</th><th>Status</th></tr></thead>
+              <tbody>
+              ${healthPosts.map(hp => `
+                <tr>
+                  <td><strong>${hp.kebele}</strong></td>
+                  <td>${hp.name}</td>
+                  <td>${hp.responsible}</td>
+                  <td>${hp.irScore}%</td>
+                  <td>${hp.lgScore}%</td>
+                  <td>${hp.qeScore}%</td>
+                  <td><strong>${hp.overall}%</strong></td>
+                  <td><span class="status-badge ${getStatusClass(hp.overall)}">${getStatusText(hp.overall)}</span></td>
+                </tr>
+              `).join('')}
+              </tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-header">🥧 Performance Distribution</div>
+            <div class="pie-chart-wrap">
+              <div class="pie-chart" style="background:conic-gradient(
+                #2e7d32 0deg 60deg,
+                #f9a825 60deg 150deg,
+                #e65100 150deg 240deg,
+                #b71c1c 240deg 360deg
+              );"></div>
+              <div class="pie-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#2e7d32;"></div><span>Excellent (≥85%)</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f9a825;"></div><span>Satisfactory (75-84%)</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#e65100;"></div><span>Weak (50-74%)</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#b71c1c;"></div><span>Critical (&lt;50%)</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    document.querySelectorAll('#hcTabBar .tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#hcTabBar .tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        renderHCTab(this.dataset.hctab);
+      });
+    });
+
+    document.querySelectorAll('#hpTabBar .tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#hpTabBar .tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        if (currentHpId) {
+          currentHpTab = this.dataset.hptab;
+          renderHPDetail(currentHpId, this.dataset.hptab);
+        } else {
+          renderHPs();
+        }
+      });
+    });
+
+    document.querySelectorAll('#adminTabBar .tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('#adminTabBar .tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        renderAdminTab(this.dataset.admintab);
+      });
+    });
+
+    window._goHome = goHome;
+
+    window._hpGoToList = function() {
+      currentHpId = null;
+      currentKebele = null;
+      const bcCurrent = document.getElementById('hpBreadcrumbCurrent');
+      if (bcCurrent) bcCurrent.textContent = 'All';
+      renderHPs();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window._hpSelect = function(hpId, tab) {
+      tab = tab || 'overview';
+      currentHpId = hpId;
+      const hp = healthPosts.find(h => h.id === hpId);
+      if (hp) currentKebele = hp.kebele;
+      currentHpTab = tab;
+
+      document.querySelectorAll('#hpTabBar .tab-btn').forEach(b => {
+        b.classList.remove('active');
+        if (b.dataset.hptab === tab) b.classList.add('active');
+      });
+
+      renderHPDetail(hpId, tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window._hpSubmitData = function(hpId) {
+      const hp = healthPosts.find(h => h.id === hpId);
+      if (!hp) return;
+      if (!confirm('ለ ' + hp.name + ' የመረጃ ማስገቢያ ማረጋገጫ? መረጃው ለአስተዳዳሪ ይላካል።')) return;
+      hp.status = 'Submitted';
+      submissions.push({
+        facility: hp.name,
+        facilityType: 'HP',
+        hpId: hpId,
+        kebele: hp.kebele,
+        user: currentUser.name,
+        role: currentUser.role,
+        period: new Date().toISOString().slice(0, 7),
+        enteredAt: new Date().toLocaleString(),
+        submittedAt: new Date().toLocaleString(),
+        status: 'Submitted',
+        adminReviewer: '',
+        reviewDate: '',
+        adminComments: '',
+        approval: 'Pending'
+      });
+      updateHomeCounts();
+      renderHPDetail(hpId, 'data');
+      showToast('መረጃ ለአስተዳዳሪ ተልኳል', 'success');
+    };
+
+    window._hcSubmitData = function() {
+      if (!confirm('Submit HC data to Admin for review?')) return;
+      submissions.push({
+        facility: 'Debremarkos HC',
+        facilityType: 'HC',
+        kebele: '—',
+        user: currentUser.name,
+        role: currentUser.role,
+        period: new Date().toISOString().slice(0, 7),
+        enteredAt: new Date().toLocaleString(),
+        submittedAt: new Date().toLocaleString(),
+        status: 'Submitted',
+        adminReviewer: '',
+        reviewDate: '',
+        adminComments: '',
+        approval: 'Pending'
+      });
+      updateHomeCounts();
+      showToast('HC data submitted to Admin', 'success');
+    };
+
+    window._adminApprove = function(idx) {
+      if (!submissions[idx]) return;
+      submissions[idx].status = 'Approved';
+      submissions[idx].reviewDate = new Date().toLocaleString();
+      submissions[idx].adminReviewer = currentUser.name;
+      renderAdminTab('submissions');
+      showToast('Submission approved', 'success');
+    };
+
+    window._adminReturn = function(idx) {
+      if (!submissions[idx]) return;
+      submissions[idx].status = 'Returned';
+      submissions[idx].reviewDate = new Date().toLocaleString();
+      submissions[idx].adminReviewer = currentUser.name;
+      renderAdminTab('submissions');
+      showToast('Submission returned for correction', 'warning');
+    };
+
+    window._hpCopyData = function(hpId) {
+      const hp = healthPosts.find(h => h.id === hpId);
+      if (!hp) return;
+      const indicators = hpIndicators[hpId] || [];
+      let text = `DM PHCU Performance Dashboard 2026\n`;
+      text += `=====================================\n`;
+      text += `Facility: ${hp.name} (${hp.code})\n`;
+      text += `Kebele: ${hp.kebele}\n`;
+      text += `Responsible: ${hp.responsible}\n`;
+      text += `Overall: ${hp.overall}%\n`;
+      text += `IR: ${hp.irScore}% | LG: ${hp.lgScore}% | Q&E: ${hp.qeScore}%\n`;
+      text += `Status: ${hp.status}\n`;
+      text += `Date: ${new Date().toLocaleString()}\n`;
+      text += `=====================================\n`;
+      indicators.forEach(k => {
+        let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+        text += `${k.name}: Target=${k.plan}, Actual=${k.achievement}, Perf=${perf}%\n`;
+      });
+      copyToClipboard(text, 'HP data copied to clipboard!');
+    };
+
+    window._hcCopyData = function() {
+      const hcScore = getHCScore();
+      let text = `DM PHCU Performance Dashboard 2026\n`;
+      text += `=====================================\n`;
+      text += `Facility: Debremarkos Health Center\n`;
+      text += `Overall: ${hcScore}%\n`;
+      text += `Date: ${new Date().toLocaleString()}\n`;
+      text += `=====================================\n`;
+      hcAgendas.forEach(a => {
+        text += `${a.name}: ${a.score}% (Weight: ${a.weight}%)\n`;
+      });
+      text += `=====================================\n`;
+      hcIndicators.forEach(k => {
+        let perf = k.performance || calcPerformance(k.plan, k.achievement, k.direction);
+        text += `${k.name}: Target=${k.plan}, Actual=${k.achievement}, Perf=${perf}%\n`;
+      });
+      copyToClipboard(text, 'HC data copied to clipboard!');
+    };
+
+    window._hpShareData = function(hpId) {
+      const hp = healthPosts.find(h => h.id === hpId);
+      if (!hp) return;
+      const indicators = hpIndicators[hpId] || [];
+      let text = `DM PHCU Performance Dashboard 2026\n`;
+      text += `Facility: ${hp.name} (${hp.code})\n`;
+      text += `Kebele: ${hp.kebele} | Responsible: ${hp.responsible}\n`;
+      text += `Overall: ${hp.overall}% (IR: ${hp.irScore}%, LG: ${hp.lgScore}%, Q&E: ${hp.qeScore}%)\n`;
+      text += `Status: ${hp.status}\n`;
+      text += `---\n`;
+      indicators.slice(0, 10).forEach(k => {
+        let perf = calcPerformance(k.plan, k.achievement, k.direction || 'higher');
+        text += `${k.name}: ${perf}%\n`;
+      });
+      shareContent(text, hp.name + ' Performance Report');
+    };
+
+    window._hcShareData = function() {
+      const hcScore = getHCScore();
+      let text = `DM PHCU Performance Dashboard 2026\n`;
+      text += `Facility: Debremarkos Health Center\n`;
+      text += `Overall: ${hcScore}%\n`;
+      text += `---\n`;
+      hcAgendas.forEach(a => {
+        text += `${a.name}: ${a.score}%\n`;
+      });
+      shareContent(text, 'Debremarkos HC Performance Report');
+    };
+
+    function copyToClipboard(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(successMsg || 'Copied to clipboard!', 'success');
+        }).catch(() => {
+          fallbackCopy(text, successMsg);
+        });
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg || 'Copied to clipboard!', 'success');
+      } catch (e) {
+        showToast('Copy failed. Please copy manually.', 'error');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function shareContent(text, title) {
+      if (navigator.share) {
+        navigator.share({
+          title: title || 'DM PHCU Performance Report',
+          text: text
+        }).then(() => {
+          showToast('Shared successfully!', 'success');
+        }).catch((err) => {
+          if (err.name !== 'AbortError') {
+            showShareMenu(text, title);
+          }
+        });
+      } else {
+        showShareMenu(text, title);
+      }
+    }
+
+    function showShareMenu(text, title) {
+      const encodedText = encodeURIComponent(text);
+      const encodedTitle = encodeURIComponent(title || 'DM PHCU Performance Report');
+      const url = encodeURIComponent(window.location.href);
+
+      const shareHtml = `
+        <div id="shareOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:16px;">
+          <div style="background:white;border-radius:20px;padding:20px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:fadeIn 0.2s ease;">
+            <div style="font-weight:800;font-size:1rem;color:var(--primary);margin-bottom:16px;text-align:center;font-family:'Times New Roman','Noto Sans Ethiopic',serif;">📤 Share Report</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+              <a href="https://wa.me/?text=${encodedText}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#e8f5e9;transition:all 0.2s;">
+                <i class="fab fa-whatsapp" style="font-size:1.6rem;color:#25D366;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#1e4a1e;">WhatsApp</span>
+              </a>
+              <a href="https://t.me/share/url?url=${url}&text=${encodedText}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#e3f2fd;transition:all 0.2s;">
+                <i class="fab fa-telegram" style="font-size:1.6rem;color:#0088cc;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#0d47a1;">Telegram</span>
+              </a>
+              <a href="mailto:?subject=${encodedTitle}&body=${encodedText}" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#fff3e0;transition:all 0.2s;">
+                <i class="fas fa-envelope" style="font-size:1.6rem;color:#e65100;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#a53f00;">Email</span>
+              </a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#e8eaf6;transition:all 0.2s;">
+                <i class="fab fa-facebook" style="font-size:1.6rem;color:#1877F2;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#0d47a1;">Facebook</span>
+              </a>
+              <a href="https://twitter.com/intent/tweet?text=${encodedText}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#e3f2fd;transition:all 0.2s;">
+                <i class="fab fa-x-twitter" style="font-size:1.6rem;color:#000;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#000;">X</span>
+              </a>
+              <a href="https://www.linkedin.com/sharing/share-offsite/?url=${url}" target="_blank" rel="noopener" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#e3f2fd;transition:all 0.2s;">
+                <i class="fab fa-linkedin" style="font-size:1.6rem;color:#0A66C2;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#0d47a1;">LinkedIn</span>
+              </a>
+              <a href="sms:?body=${encodedText}" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#f3e5f5;transition:all 0.2s;">
+                <i class="fas fa-sms" style="font-size:1.6rem;color:#7b1fa2;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#4a148c;">SMS</span>
+              </a>
+              <button onclick="window._copyAndClose('${encodedText.replace(/'/g, "\\'")}')" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:#f1f5f9;border:none;cursor:pointer;transition:all 0.2s;">
+                <i class="fas fa-copy" style="font-size:1.6rem;color:#475569;"></i>
+                <span style="font-size:0.7rem;font-weight:600;color:#475569;">Copy</span>
+              </button>
+            </div>
+            <button onclick="document.getElementById('shareOverlay').remove()" style="width:100%;padding:12px;border-radius:12px;border:2px solid #e2e8f0;background:white;font-weight:700;font-size:0.85rem;color:#475569;cursor:pointer;font-family:'Times New Roman','Noto Sans Ethiopic',serif;">Cancel</button>
+          </div>
+        </div>
+      `;
+      const div = document.createElement('div');
+      div.innerHTML = shareHtml;
+      document.body.appendChild(div.firstElementChild);
+
+      window._copyAndClose = function(encText) {
+        copyToClipboard(decodeURIComponent(encText), 'Copied to clipboard!');
+        const overlay = document.getElementById('shareOverlay');
+        if (overlay) overlay.remove();
+      };
+    }
+
+    function handleLogin() {
+      const username = document.getElementById('usernameSelect').value;
+      const password = document.getElementById('passwordInput').value.trim();
+      const usernameError = document.getElementById('usernameError');
+      const passwordError = document.getElementById('passwordError');
+
+      usernameError.classList.remove('show');
+      passwordError.classList.remove('show');
+      document.getElementById('usernameSelect').classList.remove('error');
+      document.getElementById('passwordInput').classList.remove('error');
+
+      let valid = true;
+
+      if (!username) {
+        usernameError.classList.add('show');
+        document.getElementById('usernameSelect').classList.add('error');
+        valid = false;
+      }
+
+      if (!password) {
+        passwordError.classList.add('show');
+        document.getElementById('passwordInput').classList.add('error');
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      if (username === 'Health Center') {
+        currentUser = { name: 'Health Center', role: 'hc' };
+      } else if (username === 'Health Post / የጤና ኬላ') {
+        currentUser = { name: 'Health Post', role: 'hp' };
+      } else if (username === 'Admin') {
+        currentUser = { name: 'Admin', role: 'admin' };
+      } else {
+        return;
+      }
+
+      document.getElementById('page-login').classList.remove('active');
+
+      if (currentUser.role === 'hc') {
+        openHC();
+      } else if (currentUser.role === 'hp') {
+        openHPs();
+      } else if (currentUser.role === 'admin') {
+        openAdmin();
+      }
+
+      updateHomeCounts();
+    }
+
+    function toggleFullscreen() {
+      const doc = document.documentElement;
+      const btn = document.getElementById('fullscreenBtn');
+      if (!document.fullscreenElement) {
+        if (doc.requestFullscreen) doc.requestFullscreen();
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+        if (btn) btn.innerHTML = '<i class="fas fa-compress"></i>';
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        if (btn) btn.innerHTML = '<i class="fas fa-expand"></i>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+
+      document.getElementById('loginBtn').addEventListener('click', handleLogin);
+
+      document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleLogin();
+        }
+      });
+
+      document.getElementById('usernameSelect').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('passwordInput').focus();
+        }
+      });
+
+      document.getElementById('hcCard').addEventListener('click', openHC);
+      document.getElementById('hcCard').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHC(); }
+      });
+      document.getElementById('hpCard').addEventListener('click', openHPs);
+      document.getElementById('hpCard').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHPs(); }
+      });
+      document.getElementById('adminCard').addEventListener('click', openAdmin);
+      document.getElementById('adminCard').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAdmin(); }
+      });
+
+      updateAllIndicators();
+      updateHomeCounts();
+      console.log('Debremarkose PHCU KPI initialized.');
+    });
+
+  })();
+</script>
+
+</body>
+</html>
